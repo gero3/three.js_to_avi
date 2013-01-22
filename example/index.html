@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+		<title>three.js webgl - shadow map</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #000;
+				color: #fff;
+				margin: 0px;
+				overflow: hidden;
+			}
+			#info {
+				position: absolute;
+				top: 10px;
+				width: 100%;
+				text-align: center;
+				z-index: 100;
+				display:block;
+			}
+			#info a { color: #f00; font-weight: bold; text-decoration: underline; cursor: pointer }
+		</style>
+	</head>
+
+	<body>
+
+		<div id="info">
+		<a href="http://threejs.org" target="_blank">three.js</a> - shadowmap - models by <a href="http://mirada.com/">mirada</a> from <a href="http://ro.me">rome</a></br>
+		move camera with WASD / RF + mouse
+		</div>
+
+		<script src="../libs/three.min.js"></script>
+
+		<script src="../libs/three.js/FirstPersonControls.js"></script>
+
+		<script src="../libs/three.js/UnpackDepthRGBAShader.js"></script>
+
+		<script src="../libs/Detector.js"></script>
+		<script src="../libs/stats.min.js"></script>
+
+		<script src="../libs/fonts/helvetiker_bold.typeface.js"></script>
+        <script src="../src/BlobBuilder.js"></script>
+    	<script src="../src/mjbuilder.js"></script>
+
+		<script src="scene.js"></script>
+        
+        <script>
+        
+            var builder;
+            function init(){
+                scene.init()
+                builder = new movbuilder.MotionJPEGBuilder();
+                builder.setup(  renderer.domElement.width /* width  */ ,
+                                renderer.domElement.height /* height */ ,
+                                30 /* FPS */ );
+            }
+
+                            
+            var framescount = 0,ended=false;         
+            function animate() {
+
+				requestAnimationFrame( animate );
+
+				scene.render();
+				stats.update();
+                
+                if (framescount++ < 120){
+                    builder.addCanvasFrame(renderer.domElement);
+                } else if (!ended){
+                    ended = true;
+                    builder.finish(function(generatedURL) {
+                        open(generatedURL);
+                    });
+                }
+
+			}
+            
+            init();
+            animate();
+            
+            
+        </script>
+	</body>
+</html>
