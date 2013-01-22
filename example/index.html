@@ -12,24 +12,41 @@
 				margin: 0px;
 				overflow: hidden;
 			}
-			#info {
-				position: absolute;
+			.info {
+				position:absolute;
 				top: 10px;
 				width: 100%;
 				text-align: center;
 				z-index: 100;
 				display:block;
 			}
-			#info a { color: #f00; font-weight: bold; text-decoration: underline; cursor: pointer }
+			.info a { color: #f00; font-weight: bold; text-decoration: underline; cursor: pointer }
+            
+    		.button {
+                float:right;
+				top: 10px;
+				width: 100px;
+                height:20px;
+                background-color:white;
+                color: black;
+				text-align: center;
+				z-index: 100;
+				display:block; }
 		</style>
 	</head>
 
 	<body>
 
-		<div id="info">
+		<div class="info">
 		<a href="http://threejs.org" target="_blank">three.js</a> - shadowmap - models by <a href="http://mirada.com/">mirada</a> from <a href="http://ro.me">rome</a></br>
 		move camera with WASD / RF + mouse
 		</div>
+        <div>
+            <div id="btnStart" class="button">Record(R)</div>
+            <div id="btnStop" class="button">Stop(S)</div>
+            <div id="btnDownload" class="button">Export(D)</div>
+        </div>
+        
 
 		<script src="../libs/three.min.js"></script>
 
@@ -38,7 +55,8 @@
 		<script src="../libs/three.js/UnpackDepthRGBAShader.js"></script>
 
 		<script src="../libs/Detector.js"></script>
-		<script src="../libs/stats.min.js"></script>
+    	<script src="../libs/stats.min.js"></script>
+    	<script src="../libs/keyboard.js"></script>
 
 		<script src="../libs/fonts/helvetiker_bold.typeface.js"></script>
         <script src="../src/BlobBuilder.js"></script>
@@ -58,7 +76,8 @@
             }
 
                             
-            var framescount = 0,ended=false;         
+            
+            var started = false,ended,generatedURL;
             function animate() {
 
 				requestAnimationFrame( animate );
@@ -66,16 +85,56 @@
 				scene.render();
 				stats.update();
                 
-                if (framescount++ < 120){
+                if (started){
                     builder.addCanvasFrame(renderer.domElement);
-                } else if (!ended){
-                    ended = true;
-                    builder.finish(function(generatedURL) {
-                        open(generatedURL);
-                    });
+                } else if (ended){
+                    ended = false;
+
                 }
 
 			}
+            
+            document.getElementById("btnStart").onclick = start;
+            document.getElementById("btnStop").onclick = stop;
+            function start(){
+                started =true;
+                document.getElementById("btnStart").innerText = "Pause(P)";
+                document.getElementById("btnStart").onclick = pause;
+            }
+            
+            function pause(){
+                started =false;
+                document.getElementById("btnStart").innerText = "Contine(C)";
+                document.getElementById("btnStart").onclick = start;
+            }
+            
+            
+            function stop(){
+                started =false;
+                document.getElementById("btnStart").innerText = "Record(R)";
+                document.getElementById("btnStart").onclick = start;
+                
+                document.getElementById("btnStop").innerText = "Generating..."
+                builder.finish(function(genURL) {
+                    generatedURL= genURL;
+                });
+                document.getElementById("btnStop").innerText = "Stop(S)"
+            }
+            
+            function download(){
+                if (generatedURL){
+                    window.open(generatedURL,"_blank");
+                }
+                
+            }
+            
+            
+            KeyboardJS.on('r', start);
+            KeyboardJS.on('p', pause);
+            KeyboardJS.on('c', start);
+            KeyboardJS.on('s', stop);
+            KeyboardJS.on('e', download);
+            
             
             init();
             animate();
